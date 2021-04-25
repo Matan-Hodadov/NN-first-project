@@ -36,14 +36,18 @@ class CustomAdaline(object):
     def predict(self, X: np.array) -> np.array:
         return np.where(self.activation_function(self.net_input(X)) >= 0.0, 1, 0)
 
-    def score(self, X: np.array, y: np.array) -> np.array:
-        misclassified_data_count = 0
-        for xi, target in zip(X, y):
-            output = self.predict(xi)
-            if target != output:
-                misclassified_data_count += 1
-        total_data_count = len(X)
-        self.score_ = (total_data_count - misclassified_data_count) / total_data_count
+    # def score(self, X: np.array, y: np.array) -> np.array:
+    #     misclassified_data_count = 0
+    #     for xi, target in zip(X, y):
+    #         output = self.predict(xi)
+    #         if target != output:
+    #             misclassified_data_count += 1
+    #     total_data_count = len(X)
+    #     self.score_ = (total_data_count - misclassified_data_count) / total_data_count
+    #     return self.score_
+
+    def score(self, y_true: np.array, y_pred: np.array) -> float:
+        self.score_ = np.sum(y_true == y_pred) / len(y_true)
         return self.score_
 
     @staticmethod
@@ -71,4 +75,6 @@ if __name__ == '__main__':
     y_test = y[TRAIN_TEST_SPLIT:]
 
     adaline.fit(X_train, y_train)
-    # adaline.
+    y_pred = adaline.predict(X_test)
+    scores = adaline.score(y_test, y_pred)
+    print(scores)
