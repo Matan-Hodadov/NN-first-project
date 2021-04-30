@@ -39,22 +39,16 @@ class CustomAdaline(object):
         weighted_sum = np.dot(X, self.weights[1:]) + self.weights[0]
         return weighted_sum
 
-    @staticmethod
-    def activation_function(X: np.array) -> np.array:
-        return X
-
     def predict(self, X: np.array) -> np.array:
-        # return np.where(self.activation_function(self.net_input(X)) >= 0.0, -1, 1)
         return np.where(self.net_input(X) >= 0.0, 1, -1)
 
     def score(self, y_true: np.array, y_pred: np.array) -> float:
         self.score_ = np.sum(y_true == y_pred) / len(y_true) * 100
         return self.score_
 
-    @staticmethod
-    def prepare_data(resolution: int) -> np.array:
+    def prepare_data(self, resolution: int) -> np.array:
         data = np.zeros(shape=(VECTOR_SIZE, 3))
-        np.random.seed(101)
+        np.random.seed(self.random_state)
         data[:, :2] = np.random.randint(-resolution, resolution + 1, size=(VECTOR_SIZE, 2)) / resolution
 
         for row in data:
