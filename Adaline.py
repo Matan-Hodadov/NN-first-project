@@ -32,7 +32,7 @@ class CustomAdaline(object):
                 error = y[row] - activation_function_output
                 self.weights[1:] = self.weights[1:] + self.learning_rate * error
                 self.weights[0] = self.weights[0] + self.learning_rate * error
-        print("the weights are: " + str(self.weights))
+        #print("the weights are: " + str(self.weights))
 
     def net_input(self, X: np.array) -> np.array:
         """
@@ -66,25 +66,33 @@ class CustomAdaline(object):
         """
         create the data with custom query, resolution and size
         :param resolution: the fraction size of the data (100 is 1/100)
-        :param size:
-        :param random_state:
+        :param size: size of the data
+        :param random_state: random seed to use
         :param labeling: if 0 then all data with x > 1/2 & y >1/2 label 1, if 1 then 1/2  <= x**2 + y**2 <= 3/4 label 1
-        :return:
+        :return: data using random seed and the query for the labels
         """
         data = np.zeros(shape=(size, 3))
         np.random.seed(random_state)
         data[:, :2] = np.random.randint(-resolution, resolution + 1, size=(size, 2)) / resolution
-
+        # for part A
         if labeling == 0:
             for row in data:
                 row[2] = 1 if row[0] > 0.5 and row[1] > 0.5 else -1
-        if labeling == 1:
+        # for part B
+        elif labeling == 1:
             for row in data:
                 row[2] = 1 if 1 / 2 <= row[0] ** 2 + row[1] ** 2 <= 3 / 4 else -1
 
         return data
 
-    def train_test_split(self, data: np.ndarray, split: int = TRAIN_TEST_SPLIT)-> (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+    @staticmethod
+    def train_test_split(data: np.ndarray, split: int = TRAIN_TEST_SPLIT)-> (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+        """
+        split the data into X, y with a given train test split ratio
+        :param data: the data with features and labels
+        :param split: split index
+        :return: X_train, X_test, y_train, y_test with the given ratio
+        """
         X = data[:, :2]
         y = data[:, 2]
 
@@ -126,6 +134,24 @@ if __name__ == '__main__':
     score = adaline.score(y_test, y_pred)
     print(score)
 
+    scores = np.zeros(10)
+    data_size = np.zeros(10)
+    for i in range(10):
+        data = adaline.prepare_data(resolution=100, size=500 * (5 + i), random_state=1, labeling=0)
+        X_train, X_test, y_train, y_test = adaline.train_test_split(data)
+        adaline.fit(X_train, y_train)
+        y_pred = adaline.predict(X_test)
+        score = adaline.score(y_test, y_pred)
+        scores[i] = score
+        data_size[i] = 500 * (5 + i)
+
+    fig = plt.subplot()
+    fig.plot(data_size, scores)
+    plt.title("part A")
+    fig.set_xlabel("data size")
+    fig.set_ylabel("accuracy")
+    plt.show()
+
     print("\npart B")
     print("Q1: change the labels to be 1 if 1/2  <= x**2 + y**2 <= 3/4")
     VECTOR_SIZE = 1000
@@ -140,13 +166,17 @@ if __name__ == '__main__':
     scores = np.zeros(10)
     data_size = np.zeros(10)
     for i in range(10):
-        data = adaline.prepare_data(resolution=100, size=500*(1+i), random_state=1, labeling=1)
+        data = adaline.prepare_data(resolution=100, size=500 * (5 + i), random_state=1, labeling=1)
         X_train, X_test, y_train, y_test = adaline.train_test_split(data)
         adaline.fit(X_train, y_train)
         y_pred = adaline.predict(X_test)
         score = adaline.score(y_test, y_pred)
         scores[i] = score
-        data_size[i] = 500*(1+i)
+        data_size[i] = 500 * (5 + i)
 
-    plt.plot(data_size, scores)
+    fig = plt.subplot()
+    fig.plot(data_size, scores)
+    plt.title("part B")
+    fig.set_xlabel("data size")
+    fig.set_ylabel("accuracy")
     plt.show()
